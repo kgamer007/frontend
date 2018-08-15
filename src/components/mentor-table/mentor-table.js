@@ -210,7 +210,11 @@ export default class MentorTable extends React.Component {
         rowGetter={this.getRowAt}
         rowsCount={this.state.rows.length}
         onGridRowsUpdated={this.handleGridRowsUpdated}
-        toolbar={<div><Toolbar onAddRow={this.handleAddRow}/><button className="deleteBtn">Delete</button></div>}
+        toolbar={
+        <div>
+          <Toolbar onAddRow={this.handleAddRow}/>
+          <button className="deleteBtn">Delete</button>
+        </div>}
         enableRowSelect={true}
         onRowSelect={this.onRowSelect}
         rowSelection={{
