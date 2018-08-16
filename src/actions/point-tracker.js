@@ -42,3 +42,17 @@ export const fetchLastPointTracker = studentId => (store) => { // eslint-disable
     })
     .catch(console.error); // eslint-disable-line
 };
+
+export const fetchTeachers = studentId => (store) => { // eslint-disable-line
+  const { token } = store.getState();
+
+  return superagent.get(`${API_URL}${routes.PROFILE_ROUTE}`)
+    .set('Authorization', `Bearer ${token}`)
+    .set('Content-Type', 'application/json')
+    .then((response) => {
+      const profiles = response.body;
+      const teachers = profiles.filter(profile => profile.role === 'teacher');
+      return teachers;
+    })
+    .catch(console.error); // eslint-disable-line
+};

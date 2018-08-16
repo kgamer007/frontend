@@ -16,33 +16,39 @@ const defaultState = {
     scoring: {
       excusedDays: 1,
       stamps: 14,
-      x: 3,
+      halfStamps: 3,
       tutorials: 1,
     },
+    grade: 90,
   }, {
     subjectName: 'Math',
     teacher: '1EF12348902093DECBA912',
     scoring: {
       excusedDays: 1,
       stamps: 12,
-      x: 6,
+      halfStamps: 6,
       tutorials: 0,
     },
+    grade: 70,
   }, {
     subjectName: 'Biology',
     teacher: '1EF12348902093DECBA914',
     scoring: {
       excusedDays: 1,
       stamps: 16,
-      x: 1,
+      halfStamps: 1,
       tutorials: 2,
     },
+    grade: 50,
   }],
   surveyQuestions: {
     attendedCheckin: true,
     metFaceToFace: true,
     hadOtherCommunication: false,
     scoreSheetTurnedIn: true,
+    scoreSheetLostOrIncomplete: true,
+    scoreSheetWillBeLate: true,
+    scoreSheetOther: true,
   },
   synopsisComments: {
     extraPlayingTime: 'Jamie is working hard toward his goals. We agreed that if he achieved a small improvement this week he would get extra playing time.',
@@ -57,6 +63,7 @@ const mapDispatchToProps = dispatch => ({
   createPointTracker: pointTracker => dispatch(pointTrackerActions.createPointTracker(pointTracker)),
   fetchStudents: studentIds => dispatch(pointTrackerActions.fetchStudents(studentIds)),
   fetchLastPointTracker: studentId => dispatch(pointTrackerActions.fetchLastPointTracker(studentId)),
+  fetchTeachers: studentId => dispatch(pointTrackerActions.fetchTeachers(studentId)),
 });
 
 class PointTrackerForm extends React.Component {
@@ -65,23 +72,56 @@ class PointTrackerForm extends React.Component {
 
     this.state = {
       students: [],
+      teachers: [],
       pointTracker: defaultState,
     };
   }
 
-  // YOU ARE HERE
+  calcPlayingTime = () => {
+    const { subjects } = this.state.pointTracker;
+    console.log(subjects, 'SUBJECTS');
+
+    const totalClassScores = subjects.map((subject) => {
+      const { grade, subjectName } = subject;
+      const { excusedDays, stamps, halfStamps } = subject.scoring;
+
+      const pointsEarned = 2 * stamps + halfStamps;
+      const pointsPossible = subjectName === 'Tutorial' ? 10 - excusedDays * 2 : 40 - excusedDays * 8;
+      const pointPercentage = pointsEarned / pointsPossible;
+      
+      let pointScore = 0;
+      if (pointPercentage >= 0.50) pointScore = 1;
+      if (pointPercentage >= 0.75) pointScore = 2;
+
+      let gradeScore = 0;
+      if (grade >= 0.6) gradeScore = 1;
+      if (grade >= 0.7) gradeScore = 2;
+      if (subjectName === 'Tutorial') gradeScore = 0;
+
+      const totalClassScore = pointScore + gradeScore;
+
+      return totalClassScore;
+    });
+    
+    const totalClassScoreSum = totalClassScores.reduce((acc, cur) => acc + cur, 0);
+
+    console.log(totalClassScores, 'TOTAL CLASS SCORES');
+    if (totalClassScoreSum >= 30) return 'Entire game';
+    if (totalClassScoreSum >= 29) return 'All but start';
+    if (totalClassScoreSum >= 25) return 'Three quarters';
+    if (totalClassScoreSum >= 21) return 'Two quarters';
+    if (totalClassScoreSum >= 29) return 'One quarter';
+    return 'None of game';
+  }
+
   handleDateChange = (event) => {
     const { value } = event.target;
-    const [year, month, day] = value.split('-'); // 2018-08-15 VALUE
+    const [year, month, day] = value.split('-');
     const date = new Date(
       parseInt(year, 10), 
       parseInt(month, 10) - 1, 
       parseInt(day, 10),
     );
-
-    console.log(year, month, day, 'YEAR MONTH DAY');
-    console.log(date.getTime(), 'DATE');
-    console.log(Date.now(), 'NOW');
 
     this.setState((prevState) => {
       const newState = { ...prevState };
@@ -101,7 +141,13 @@ class PointTrackerForm extends React.Component {
         .map((subject) => {
           if (subject.subjectName === subjectName) {
             const newSubject = { ...subject };
-            newSubject.scoring[categoryName] = value;
+
+            if (categoryName === 'grade') {
+              newSubject.grade = value;
+            } else {
+              newSubject.scoring[categoryName] = value;
+            }
+            
             return newSubject;
           }
 
@@ -141,27 +187,31 @@ class PointTrackerForm extends React.Component {
   componentDidMount() {
     this.props.fetchStudents()
       .then((students) => {
-        this.setState({ students });
+        this.setState((prevState) => {
+          const newState = { ...prevState };
+          newState.student = students || [];
+          
+          return newState;
+        });
       })
       .catch(console.error); // eslint-disable-line
   }
 
-  // TODO: fix this event handler
   handleStudentSelect = (event) => {
     event.preventDefault();
     const studentId = event.target.value;
-
-    this.props.fetchLastPointTracker(studentId)
-      .then((response) => {
-        console.log(response, 'RESPONSE'); // eslint-disable-line
+    
+    this.props.fetchTeachers(studentId)
+      .then((teachers) => {
+        this.setState((prevState) => {
+          const newState = { ...prevState };
+          
+          newState.teachers = teachers || [];
+          newState.pointTracker.studentId = studentId;
+    
+          return newState;
+        });
       });
-
-    this.setState((prevState) => {
-      const newState = { ...prevState };
-      newState.pointTracker.studentId = studentId;
-
-      return newState;
-    });
   }
 
   render() {
@@ -238,6 +288,7 @@ class PointTrackerForm extends React.Component {
         value={ this.state.pointTracker.synopsisComments.extraPlayingTime }
       />
 
+      <p>Recommended playing time: { this.calcPlayingTime() }</p>
       <label htmlFor="mentorGrantedPlayingTime">Playing Time Earned</label>
       <select
         name="mentorGrantedPlayingTime"
@@ -285,7 +336,7 @@ class PointTrackerForm extends React.Component {
               { selectOptionsJSX }
               { surveyQuestionsJSX }
                 <PointTrackerTable
-                  handleChange={ this.handleChange }
+                  handleSubjectChange={ this.handleSubjectChange }
                   subjects={ this.state.pointTracker.subjects }
               />
               { synopsisCommentsJSX }
@@ -302,6 +353,7 @@ PointTrackerForm.propTypes = {
   createPointTracker: PropTypes.func,
   fetchStudents: PropTypes.func,
   fetchLastPointTracker: PropTypes.func,
+  fetchTeachers: PropTypes.func,
 };
 
 export default connect(null, mapDispatchToProps)(PointTrackerForm);
