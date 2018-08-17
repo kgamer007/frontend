@@ -16,6 +16,10 @@ p {
   top: 0; left: 0; bottom: 0; right: 0;
 }
 
+.hide {
+  display: none;
+}
+
 .field-wrap {
   display: flex;
   align-items: center;
@@ -41,18 +45,6 @@ p {
   position: relative;
   top: 1em;
   margin-bottom: 2em;
-}
-
-.modalContainer input {
-  background: white;
-  border: none;
-  display: inline-block;
-  font-size: 18px;
-  font-weight: 300;
-  width: 85%;
-  height: 36px;
-  margin-bottom: 1.8em;
-  padding: 10px;
 }
 
 .modalContainer input:focus {
@@ -94,7 +86,7 @@ input:focus, button:focus {
 }
 
 .dropdown {
-  margin-bottom: 1.7em;
+  margin-bottom: 2em;
 }
 
 .dropdown select {
@@ -111,4 +103,9 @@ input:focus, button:focus {
   right: 10px;
   padding: 0;
   margin: 0;
+}
+
+.close-modal:hover {
+  color: rgb(211, 50, 50);
+  background: none;
 }

@@ -9,7 +9,7 @@ import { makeData, Tips } from '../../lib/utils';
 import ConnectionModal from '../connection-modal/connection-modal';
 
 import './student-table.scss';
-import { DeleteAndSave, Modal } from '../buttons/buttons';
+import DeleteAndSave from '../buttons/buttons';
 
 import * as profileActions from '../../actions/profile';
 
@@ -94,6 +94,8 @@ class StudentTable extends React.Component {
       selectedIndexes: [],
       originalRows: [],
       expanded: {},
+      isOpen: false, // for the modal
+      hide: true, 
     };
   }
 
@@ -272,11 +274,21 @@ class StudentTable extends React.Component {
     });
   };
 
+  toggleModal = () => {
+    this.setState({
+      isOpen: !this.state.isOpen,
+    });
+  }
+
   render() {
     return (
       <section>
-      <Modal/>
-      <ConnectionModal />
+        <div className="modal-button-wrapper">
+          <button className="modal" onClick={this.toggleModal}>+ Add A Connection</button>
+        </div>
+        <ConnectionModal show={this.state.isOpen} hide={this.state.hide}
+          onClose={this.toggleModal}>
+        </ConnectionModal>
       <ReactDataGrid
         ref={ node => this.grid = node }
         enableCellSelect={true}
