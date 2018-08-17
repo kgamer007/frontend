@@ -1,20 +1,21 @@
 @import '../../style/vars';
 
-.point-tracker-form {
-}
-.select-student, .select-date {
-  display: inline-block;
-  float: left;
-  padding: 5px;
-  // margin: 10px;
-  // vertical-align: middle;
-    
-    select, input {
-      display: inline-block;
-      width: 180px;
-      height: 3em;
-      padding: 10px;
-      }
+.point-tracker-form { // eslint-disable
+
+  .select-student, .select-date {
+    display: inline-block;
+    // float: left;
+    padding: 5px;
+    // margin: 10px;
+    // vertical-align: middle;
+      
+      select, input {
+        display: inline-block;
+        width: 180px;
+        height: 3em;
+        padding: 10px;
+        }
+  }
 }
 
 .survey-questions input,
