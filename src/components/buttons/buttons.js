@@ -1,4 +1,5 @@
 import React from 'react';
+import ConnectionModal from '../connection-modal/connection-modal';
 import './buttons.scss';
 
 class DeleteAndSave extends React.Component {
@@ -18,8 +19,8 @@ class Modal extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <div>
-          <button className="modal">+ Add A Connection</button>
+        <div className="modal-button-wrapper">
+          <button className="modal" onClick={ConnectionModal}>+ Add A Connection</button>
         </div>
       </React.Fragment>
     );

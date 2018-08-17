@@ -9,7 +9,7 @@ import { makeData, Tips } from '../../lib/utils';
 import ConnectionModal from '../connection-modal/connection-modal';
 
 import './student-table.scss';
-import { DeleteAndSave } from '../buttons/buttons';
+import { DeleteAndSave, Modal } from '../buttons/buttons';
 
 import * as profileActions from '../../actions/profile';
 
@@ -275,7 +275,8 @@ class StudentTable extends React.Component {
   render() {
     return (
       <section>
-      <ConnectionModal/>
+      <Modal/>
+      <ConnectionModal />
       <ReactDataGrid
         ref={ node => this.grid = node }
         enableCellSelect={true}
